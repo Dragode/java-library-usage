@@ -1,24 +1,66 @@
 package person.dragon.beancopy;
 
+import org.apache.commons.beanutils.BeanUtils;
+import org.openjdk.jmh.annotations.Benchmark;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
+
 /**
- * We often need to copy properties between two POJO,eg: from entity to DTO.
- * todo add benckmark
+ * We often need to copy properties between two POJO,eg: copy entity to DTO.
+ * We also add a JMH bench mark to see the performance between each library.
+ * You use [todo add command] to run the benchmark.
+ * The result running at my computer like this:
+ * todo add result
  *
  * @author Dragon
  */
 public class BeanCopyUsage {
 
+    private static SourceBean sourceBean;
+
+    //Init the source bean.
+    static {
+        sourceBean = new SourceBean();
+        sourceBean.setId("1");
+        sourceBean.setCount(2);
+        sourceBean.setDate(new Date());
+        SourceInnerClass sourceInnerClass = new SourceInnerClass();
+        sourceInnerClass.setTitle("title");
+        sourceBean.setInnerClass(sourceInnerClass);
+    }
+
     /**
-     * todo Add Short description of library.
+     * [ Recommend ] mapstruct library will generate todo desc
      */
-    public void apacheBeanCopy() {
+    @Benchmark
+    public void mapStruct() {
+        //First add a mapper like MapstructMapper
+        //Then use MapstructMapper to copy bean properties
+        DestinationBean copiedBean = MapstructMapper.INSTANCE.copy(sourceBean);
+    }
+
+    /**
+     * todo short description
+     */
+    @Benchmark
+    public void springBeanCopy() {
         //todo implements
     }
 
     /**
-     * todo Add Short description of library.
+     * [ Caution! ] Dont use apache BeanUtils to copy properties between bean.
+     * todo add reason
      */
-    public void mapStruct() {
-        //todo implements
+    @Benchmark
+    public void apacheBeanCopy() {
+        DestinationBean destinationBean = new DestinationBean();
+        try {
+            BeanUtils.copyProperties(destinationBean, sourceBean);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 }
